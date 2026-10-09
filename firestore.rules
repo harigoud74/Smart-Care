@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Connection testing
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId);
+      allow create: if isSignedIn() && request.auth.uid == userId
+                    && request.resource.data.id == userId
+                    && request.resource.data.role in ['PATIENT', 'DOCTOR', 'ADMIN'];
+      allow update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Appointments Collection
+    match /appointments/{appointmentId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.patientId == request.auth.uid
+      );
+      allow update: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    // AI Chat History Collection
+    match /chatHistory/{chatId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Audio Transcriptions Collection
+    match /audioTranscriptions/{transcriptionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Medical Notes Collection
+    match /medicalNotes/{noteId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.authorId == request.auth.uid
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.authorId == request.auth.uid ||
+        request.resource.data.patientId == request.auth.uid
+      );
+      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+  }
+}

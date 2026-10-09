@@ -1,0 +1,116 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile authenticated via Firebase Google Sign-In or email",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["PATIENT", "DOCTOR", "ADMIN"] },
+        "photoURL": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "email", "role"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Healthcare appointments booked by patients with doctors",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "patientEmail": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "department": { "type": "string" },
+        "date": { "type": "string" },
+        "timeSlot": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] },
+        "symptoms": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "patientId", "doctorId", "date", "timeSlot", "status"]
+    },
+    "ChatThread": {
+      "title": "ChatThread",
+      "description": "Gemini multi-turn clinical chat conversations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "model": { "type": "string" },
+        "systemInstruction": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "model"]
+    },
+    "AudioTranscription": {
+      "title": "AudioTranscription",
+      "description": "Voice audio transcriptions transcribed via gemini-3.5-transcribe",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "text": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "text"]
+    },
+    "MedicalNote": {
+      "title": "MedicalNote",
+      "description": "Clinical health notes and patient medical records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "patientId", "authorId", "title", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles indexed by Firebase Auth UID"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Healthcare appointment records with patient and doctor ownership"
+    },
+    "/chatHistory/{chatId}": {
+      "schema": { "$ref": "#/entities/ChatThread" },
+      "description": "Gemini multi-turn conversation sessions saved per user"
+    },
+    "/audioTranscriptions/{transcriptionId}": {
+      "schema": { "$ref": "#/entities/AudioTranscription" },
+      "description": "Speech-to-text transcriptions saved per user"
+    },
+    "/medicalNotes/{noteId}": {
+      "schema": { "$ref": "#/entities/MedicalNote" },
+      "description": "Patient medical notes and prescriptions"
+    },
+    "/test/{testId}": {
+      "schema": {
+        "title": "TestDoc",
+        "description": "Connection test document",
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" }
+        }
+      },
+      "description": "Test collection for verifying client Firestore connection"
+    }
+  }
+}

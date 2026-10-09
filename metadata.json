@@ -1,0 +1,7 @@
+{
+  "name": "SmartCare — Healthcare Appointment & Patient Management",
+  "description": "SmartCare is an intelligent healthcare platform with patient, doctor, and admin portals, smart department recommendations, automated scheduling, secure medical records, and digital prescriptions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
